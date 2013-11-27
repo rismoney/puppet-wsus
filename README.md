@@ -25,11 +25,28 @@ Minimum Windows Server 2008 R2
 Leverage WSUS SP2 available here http://www.microsoft.com/en-us/download/details.aspx?id=5216
 Leverage PoshWSUS available here http://poshwsus.codeplex.com/
 
-The usage of this provider is pending formalization of the puppet type.  When the paramaters and properties across the multiple types they will be published here.
+Status:
+An initial set of types are defined which present as the following:
+Provider work is now underway
 
+```puppet
 
+wsusgroup {'win2012r2-prod':
+  ensure  => present,
+  server  => 'my-wsus-server.example.com',
+}
 
+wsuscomputer {'mypc.example.com':
+  ensure         => present,
+  wsusgroup      => 'win2012r2-prod',
+  require        => Wsusgroup['win2012-prod'],
+  server         => 'my-wsus-server.example.com',
+}
 
-
-
-
+wsuspatchstatus {'kb123456':
+  ensure          => present # install|removal  (akin to present|absent),
+  server          => 'my-wsus-server.example.com',
+  require         => Wsusgroup['win2012-prod'],
+  wsusgroups      => ['win2012r2-prod'],
+}
+```
