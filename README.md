@@ -20,14 +20,27 @@ configuration of all servers and workstations according to their function.
 
 This project's goal is to futher realize that goal on Windows Servers
 
+The initial approach is to:
+* Define a set of patch groups
+* Place Computers into those patch groups
+* Assign Patches to Patch Groups
+* Let Puppet do the needful, and let Automatic Updates do the needful
+
 Initial Requirements:
-Minimum Windows Server 2008 R2
-Leverage WSUS SP2 available here http://www.microsoft.com/en-us/download/details.aspx?id=5216
-Leverage PoshWSUS available here http://poshwsus.codeplex.com/
+
+* Development being performed on Win2012 using integrated Feature/Roles
+* Most likely supports  Windows Server 2008 R2 with [WSUS SP2](httpo://www.microsoft.com/en-us/download/details.aspx?id=5216)
+* Leverage PoshWSUS available here http://poshwsus.codeplex.com/  -  The psm1 file needs to have write-host omitted.  Patched on github PoshWSUS repo
 
 Status:
-An initial set of types are defined which present as the following:
-Provider work is now underway
+* Provider is currently functional!  Woot!
+
+TODO
+* Rpec: haven't tried a slew of use cases and edge cases
+* Improve runtime.  Some of the Calls are unnecessarily expensive
+* Automatic Updates Management (Separate module)
+
+Usage:
 
 ```puppet
 
