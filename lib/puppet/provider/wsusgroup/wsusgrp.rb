@@ -1,6 +1,4 @@
-require File.join(File.dirname(__FILE__), '..', 'wsus')
-
-Puppet::Type.type(:wsusgroup).provide(:wsusgroup, :parent => Puppet::Provider::Wsus) do
+Puppet::Type.type(:wsusgroup).provide :wsusgrp, :parent => Puppet::Provider do
   desc "WSUS group"
 
     commands :poshexec =>
