@@ -1,0 +1,3 @@
+---
+use_wsus: true
+wsus_targetgroups: samplegroup1

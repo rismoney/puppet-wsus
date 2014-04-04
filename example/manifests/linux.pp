@@ -1,0 +1,2 @@
+class wsus::linux {
+}

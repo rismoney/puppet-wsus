@@ -56,7 +56,7 @@ wsuscomputer {'mypc.example.com':
   server         => 'my-wsus-server.example.com',
 }
 
-wsuspatchstatus {'kb123456':
+wsuspatchstatus {'add kb123456 to win2012-prod': # this is just a uniq namevar right now
   ensure          => present # install|removal  (akin to present|absent),
   server          => 'my-wsus-server.example.com',
   require         => Wsusgroup['win2012-prod'],

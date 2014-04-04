@@ -1,0 +1,13 @@
+---
+wsus_groups:
+  'samplegroup1'   : {ensure: 'present'}
+  'samplegroup2'   : {ensure: 'present'}
+
+samplegroup1:
+  'kb2868626'      : {ensure: 'present'}
+  'kb2900986'      : {ensure: 'present'}
+
+samplegroup2:
+  'kb2868626'      : {ensure: 'present'}
+  'kb2900986'      : {ensure: 'present'}
+
