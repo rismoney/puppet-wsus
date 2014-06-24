@@ -10,6 +10,7 @@ gems = [
   'mocha/setup', # http://gofreerange.com/mocha/docs/Mocha/Configuration.html
   'jumanjiman_spec_helper',
   'puppet',
+  'rspec',
 ]
 begin
   gems.each {|gem| require gem}

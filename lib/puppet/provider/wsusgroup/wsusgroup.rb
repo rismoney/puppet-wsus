@@ -1,6 +1,4 @@
-require File.join(File.dirname(__FILE__), '..', 'wsus')
-
-Puppet::Type.type(:wsusgroup).provide(:wsusgroup, :parent => Puppet::Provider::Wsus) do
+Puppet::Type.type(:wsusgroup).provide :wsusgroup do
   desc "WSUS group"
 
     commands :poshexec =>
@@ -12,7 +10,7 @@ Puppet::Type.type(:wsusgroup).provide(:wsusgroup, :parent => Puppet::Provider::W
       'powershell.exe'
     end
 
-  @@connstr= "import-module poshwsus | out-null; $null=(Connect-PoshWSUSServer localhost -port 8530)"
+  @@connstr= 'import-module poshwsus | out-null; $null=(Connect-PoshWSUSServer localhost -port 8530)'
 
   def exists?
     rc=false
