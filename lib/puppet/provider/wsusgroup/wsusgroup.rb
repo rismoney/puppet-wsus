@@ -12,24 +12,28 @@ Puppet::Type.type(:wsusgroup).provide(:wsusgroup, :parent => Puppet::Provider::W
       'powershell.exe'
     end
 
-  @@connstr= "import-module poshwsus | out-null; $null=(Connect-PoshWSUSServer localhost -port 8530)"
+  def connectstring
+   "import-module poshwsus | out-null; $null=(Connect-PoshWSUSServer localhost -port 8530)"
+  end
 
   def exists?
     rc=false
-    args = "#{@@connstr};(GET-PoshWSUSGroup -Name \"#{@resource[:name]}\").Name"
-    group=poshexec(args)
-    (group.each {|group| group  && rc=true})
+  connstr = connectstring
+    args = "#{connstr};(GET-PoshWSUSGroup -Name \"#{@resource[:name]}\").Name"
+    group=poshexec(args).chomp
+    rc=true if group==@resource[:name]
     return rc
   end
 
   def create
-    args = "#{@@connstr};New-PoshWSUSGroup -Name \"#{@resource[:name]}\""
+    connstr = connectstring
+    args = "#{connstr};New-PoshWSUSGroup -Name \"#{@resource[:name]}\""
     poshexec(args)
   end
 
   def destroy
+    connstr = connectstring
     args = "#{@@connstr};GET-PoshWSUSGroup -Name \"#{@resource[:name]}\" |Remove-PoshWSUSGroup"
     poshexec(args)
   end
-
 end
