@@ -17,7 +17,7 @@ Puppet::Type.type(:wsuspatchstatus).provide(:wsuspatchstatus, :parent => Puppet:
   end
 
   def exists?
-    kbnumber = @resource[:name].sub(/kb/,'')
+    kbnumber = @resource[:patch].sub(/kb/,'')
     #poshregex='('+(@resource[:wsusgroups].join(',')).gsub(',',')|(')+')'
     connstr = connectstring
     args = "#{connstr};(Get-PoshWSUSUpdateApproval | Where-Object {$_.updatekb -eq \"#{kbnumber}\"} | Sort-Object -Property TargetGroup -Unique).Targetgroup"
@@ -28,7 +28,7 @@ Puppet::Type.type(:wsuspatchstatus).provide(:wsuspatchstatus, :parent => Puppet:
   end
 
   def wsusgroups
-    kbnumber = @resource[:name].sub(/kb/,'')
+    kbnumber = @resource[:patch].sub(/kb/,'')
     connstr = connectstring
     args = "#{connstr};(Get-PoshWSUSUpdateApproval | Where-Object {$_.updatekb -eq \"#{kbnumber}\"} | Sort-Object -Property TargetGroup -Unique).Targetgroup"
     approvals=Array(poshexec(args))
@@ -37,7 +37,7 @@ Puppet::Type.type(:wsuspatchstatus).provide(:wsuspatchstatus, :parent => Puppet:
   end
 
    def wsusgroups=(newvalue)
-     kbnumber = @resource[:name].sub(/kb/,'')
+     kbnumber = @resource[:patch].sub(/kb/,'')
      connstr = connectstring
      newvalue.each { |wsusgroup|
        args = "#{connstr};Approve-PoshWSUSUpdate -Group \"#{wsusgroup}\" -Update \"#{kbnumber}\" -Action Install"
@@ -50,7 +50,7 @@ Puppet::Type.type(:wsuspatchstatus).provide(:wsuspatchstatus, :parent => Puppet:
   end
 
   def destroy
-    kbnumber = @resource[:name].sub(/kb/,'')
+    kbnumber = @resource[:patch].sub(/kb/,'')
     @resource[:wsusgroups].each { |wsusgroup|
       args = "#{@@connstr};Approve-PoshWSUSUpdate -Group \"#{wsusgroup}\" -Update \"#{kbnumber}\" -Action Removal"
       poshexec(args)
