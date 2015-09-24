@@ -12,17 +12,39 @@ Puppet::Type.type(:wsusgroup).provide(:wsusgroup, :parent => Puppet::Provider::W
       'powershell.exe'
     end
 
+  mk_resource_methods
+
   def connectstring
    "import-module poshwsus | out-null; $null=(Connect-PoshWSUSServer localhost -port 8530)"
   end
 
+  def self.instances
+    connstr = "import-module poshwsus | out-null; $null=(Connect-PoshWSUSServer localhost -port 8530)"
+    args = "#{connstr};(GET-PoshWSUSGroup).name"
+    groupslist=poshexec(args)
+    resources = Array.new
+    groupslist.split(/\n+/).collect do |line|
+      resources << new(
+        :name => line,
+        :ensure => :present
+      )
+    end
+    resources
+  end
+
+  def self.prefetch(resources)
+    debug("[prefetch(resources)]")
+    Puppet.debug "wsusgroup prefetch instance: #{instances}"
+    instances.each do |prov|
+      Puppet.debug "wsusgroup prefetch instance resource: (#{prov.name})"
+      if resource = resources[prov.name]
+        resource.provider = prov
+      end
+    end
+  end
+
   def exists?
-    rc=false
-  connstr = connectstring
-    args = "#{connstr};(GET-PoshWSUSGroup -Name \"#{@resource[:name]}\").Name"
-    group=poshexec(args).chomp
-    rc=true if group==@resource[:name]
-    return rc
+    @property_hash[:ensure] == :present || false
   end
 
   def create
@@ -33,7 +55,8 @@ Puppet::Type.type(:wsusgroup).provide(:wsusgroup, :parent => Puppet::Provider::W
 
   def destroy
     connstr = connectstring
-    args = "#{@@connstr};GET-PoshWSUSGroup -Name \"#{@resource[:name]}\" |Remove-PoshWSUSGroup"
+    args = "#{connstr};GET-PoshWSUSGroup -Name \"#{@resource[:name]}\" |Remove-PoshWSUSGroup"
     poshexec(args)
   end
+
 end
