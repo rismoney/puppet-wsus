@@ -52,7 +52,7 @@ wsuspatchstatus {'kb123456-win2012-prod': # this should be unique
   patch           => 'kb123456' #this is the real namevar
   server          => 'my-wsus-server.example.com',
   require         => Wsusgroup['win2012-prod'],
-  wsusgroups      => ['win2012r2-prod'],
+  wsusgroup      => 'win2012r2-prod',
 }
 
 # if you do not use client side targetting this is also available:

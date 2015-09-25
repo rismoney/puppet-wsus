@@ -22,71 +22,59 @@ Puppet::Type.type(:wsuspatchstatus).provide(:wsuspatchstatus, :parent => Puppet:
 
     patchlist_array_of_lines = patchlist.split(/\n+/)
     formatted_patchlist = patchlist_array_of_lines.collect do |line|
-      line.split(/\s{2,}/)
-    end
+      if line.empty? ; next; end
+      values = line.split(/\s{2,}/)
 
-    patchlist_grouped = formatted_patchlist.group_by{|x| x[0]}.map{|a,b| b.join(',').split(',').uniq * ',' }
-    patchlist_grouped.each do |patchandgroup|
-      patchandgroup_array = patchandgroup.split(',')
-      patchno = patchandgroup_array[0]
-      wsusgrouplist = patchandgroup_array[1..-1]
-      if patchno
-        instances << new(
-          :ensure => :present,
-          :patch => "kb#{patchno}",
-          :wsusgroups => wsusgrouplist
+      patchno = values[0]
+      wsusgroup = values[1]
+      instances << new(
+        :name => "kb#{patchno}-#{wsusgroup}",
+        :ensure => :present,
+        :patch => "kb#{patchno}",
+        :wsusgroup => wsusgroup
         )
       end
-    end
+
     instances
   end
 
   def self.prefetch(resources)
     instances.each do |prov|
-    Puppet.debug "wsuspatch prefetch instance resource: (#{prov.patch})"
-      if resource = resources[prov.patch]
+    Puppet.debug "wsuspatch prefetch instance resource: (#{prov.name})"
+      if resource = resources[prov.name]
         resource.provider = prov
       end
     end
   end
 
   def connectstring
-    "import-module poshwsus | out-null; $null=(Connect-PoshWSUSServer localhost -port 8530)"
+   "import-module poshwsus | out-null; $null=(Connect-PoshWSUSServer localhost -port 8530)"
   end
 
   def exists?
-    if @property_hash[:wsusgroups].nil?
-      return false
-    else
-      extraneous = @resource[:wsusgroups] - @property_hash[:wsusgroups]
-      return true if extraneous.empty?
-    end
+    @property_hash[:ensure] == :present || false
   end
 
-  def wsusgroups
-    return @property_hash[:wsusgroups]
+  def wsusgroup
+    return @property_hash[:wsusgroup]
   end
 
-  def wsusgroups=(newvalue)
+  def wsusgroup=(newvalue)
      kbnumber = @resource[:patch].sub(/kb/,'')
      connstr = connectstring
-     newvalue.each { |wsusgroup|
-       args = "#{connstr};Approve-PoshWSUSUpdate -Group \"#{wsusgroup}\" -Update \"#{kbnumber}\" -Action Install"
-       poshexec(args)
-     }
+     args = "#{connstr};Approve-PoshWSUSUpdate -Group \"#{newvalue}\" -Update \"#{kbnumber}\" -Action Install"
+     poshexec(args)
   end
 
   def create
-    self.wsusgroups = @resource[:wsusgroups]
+    self.wsusgroup = @resource[:wsusgroup]
   end
 
   def destroy
     connstr = connectstring
     kbnumber = @resource[:patch].sub(/kb/,'')
-    @resource[:wsusgroups].each { |wsusgroup|
-      args = "#{connstr};Approve-PoshWSUSUpdate -Group \"#{wsusgroup}\" -Update \"#{kbnumber}\" -Action NotApproved"
-      poshexec(args)
-     }
+    args = "#{connstr};Approve-PoshWSUSUpdate -Group \"#{@resource[:wsusgroup]}\" -Update \"#{kbnumber}\" -Action NotApproved"
+    poshexec(args)
   end
 
 end
