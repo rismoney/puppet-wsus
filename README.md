@@ -22,7 +22,6 @@ This project's goal is to futher realize that goal on Windows Servers
 
 The initial approach is to:
 * Define a set of patch groups
-* Place Computers into those patch groups
 * Assign Patches to Patch Groups
 * Let Puppet do the needful, and let Automatic Updates do the needful
 
@@ -30,15 +29,14 @@ Initial Requirements:
 
 * Development being performed on Win2012 using integrated Feature/Roles
 * Most likely supports  Windows Server 2008 R2 with [WSUS SP2](httpo://www.microsoft.com/en-us/download/details.aspx?id=5216)
-* Leverage PoshWSUS available here http://poshwsus.codeplex.com/  -  The psm1 file needs to have write-host omitted.  Patched on github PoshWSUS repo
+* Leverage PoshWSUS
 
 Status:
-* Provider is currently functional!  Woot!
+* Provider is currently functional
+* Added prefetching!  Woot!
 
 TODO
 * Rpec: haven't tried a slew of use cases and edge cases
-* Improve runtime.  Some of the Calls are unnecessarily expensive
-* Automatic Updates Management (Separate module)
 
 Usage:
 
@@ -49,6 +47,16 @@ wsusgroup {'win2012r2-prod':
   server  => 'my-wsus-server.example.com',
 }
 
+wsuspatchstatus {'kb123456-win2012-prod': # this should be unique
+  ensure          => present # install|removal  (akin to present|absent),
+  patch           => 'kb123456' #this is the real namevar
+  server          => 'my-wsus-server.example.com',
+  require         => Wsusgroup['win2012-prod'],
+  wsusgroups      => ['win2012r2-prod'],
+}
+
+# if you do not use client side targetting this is also available:
+
 wsuscomputer {'mypc.example.com':
   ensure         => present,
   wsusgroup      => 'win2012r2-prod',
@@ -56,11 +64,5 @@ wsuscomputer {'mypc.example.com':
   server         => 'my-wsus-server.example.com',
 }
 
-wsuspatchstatus {'add kb123456 to win2012-prod': # this is just a uniq namevar right now
-  ensure          => present # install|removal  (akin to present|absent),
-  patch           => 'kb123456'
-  server          => 'my-wsus-server.example.com',
-  require         => Wsusgroup['win2012-prod'],
-  wsusgroups      => ['win2012r2-prod'],
-}
+
 ```
